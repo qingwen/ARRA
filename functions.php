@@ -434,6 +434,55 @@ function mem_format($bininstr) {
 
 
 /*
+ * @description: addition of two 30-bits integers
+ * @input: $a and $b which are the 1st and 2nd integers
+ * @output: $a + $b, a 30-bits integer
+ * @author: Qingwen Chen
+ */
+function add($a, $b)
+{
+    return int32to30(int30to32($a) + int30to32($b));
+}
+
+
+/*
+ * @description: subtraction of two 30-bits integers
+ * @input: $a and $b which are the 1st and 2nd 30-bits integers
+ * @output: $a - $b, which is a 30-bits integer
+ * @author: Qingwen Chen 
+ */
+function sub($a, $b)
+{
+    return int32to30(int30to32($a) - int30to32($b));
+}
+
+
+/*
+ * @description: multiplication of two 30-bits integers
+ * @input: $a and $b which are the 1st and 2nd 30-bits integers
+ * @output: $a * $b, which is a 30-bits integer
+ * @author: Qingwen Chen 
+ */
+function mult($a, $b)
+{
+    return int32to30(int30to32($a) * int30to32($b));
+}
+
+
+/*
+ * @description: division of two 30-bits integers
+ * @input: $a and $b which are the 1st and 2nd 30-bits integers
+ * @output: $a / $b, which is a 30-bits integer
+ * @author: Qingwen Chen 
+ */
+function div($a, $b)
+{
+    return int32to30(floor(int30to32($a)/int30to32($b)));
+}
+
+
+
+/*
  * @description: An integer on ARRA is 30 bits which is different 
  *               from the case on other machines, nomrally 32 bits.
  *               This function converts 30-bits integer into 32-bits
