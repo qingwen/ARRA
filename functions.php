@@ -534,17 +534,33 @@ function div($a, $b)
  * @author: Qingwen Chen
  */
 function int30to32($a)
-{    
-    if(!is_int($a)){
-        echo "Debug error: argument type is not integer.\n";
-        $a = (int) $a;
-    }
+{ 
+    if(PHP_INT_SIZE == 4){ //if integer size is 32 bits
+        if(!is_int($a)){
+            echo "Debug error: argument type is not integer.\n";
+            $a = (int) $a;
+        }
 
-    if($a & 0x20000000) {
-        return ($a | 0xC0000000) + 1; //A negative number is represented as
-                                      //1's complement in PHP.
+        if($a & 0x20000000) {
+            return ($a | 0xC0000000) + 1; //A negative number is represented as
+            //1's complement in PHP.
+        } else {
+            return $a;
+        }
+    } elseif(PHP_INT_SIZE == 8) {  //if integer size is 64 bits
+        if(!is_int($a)){
+            echo "Debug error: argument type is not integer.\n";
+            $a = (int) $a;
+        }
+
+        if($a & 0x20000000) {
+            return ($a | 0xFFFFFFFFC0000000) + 1; //A negative number is represented as
+            //1's complement in PHP.
+        } else {
+            return $a;
+        }
     } else {
-        return $a;
+        echo "Fatal error: unknown integer size!!!\n";
     }
 }
 
