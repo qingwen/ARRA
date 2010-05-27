@@ -580,7 +580,7 @@ function int32to30($a)
         echo "Debug error: argument type is not integer.\n";
         $a = (int) $a;
     }
-    if($a < 0)
+    if($a & 0x20000000)
         $a = $a - 1; //to eliminate the effect of 1's complement for
                      //negative integers
     return ($a & 0x3FFFFFFF);
