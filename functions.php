@@ -77,27 +77,27 @@ function execute($bininstr) {
     switch($instr) {
         case 0:
             $_SESSION['reg_a'] = add($_SESSION['reg_a'], $_SESSION['mem'][$addr]);
+            $_SESSION['log'] .= $_SESSION['instr_ptr']."    $instr/$addr: [A] = [A] + Memory[$addr]\n";
             $_SESSION['instr_ptr'] = $_SESSION['instr_ptr'] + 1;
-            $_SESSION['log'] .= "$instr/$addr: [A] = [A] + Memory[$addr]\n";
             $_SESSION['changes']['reg_a'] = 1;
             break;
         case 1:
             $_SESSION['reg_s'] = $_SESSION['mem'][$addr];
+            $_SESSION['log'] .= $_SESSION['instr_ptr']."    $instr/$addr: [S] = [S] + Memory[$addr]\n";
             $_SESSION['instr_ptr'] = $_SESSION['instr_ptr'] + 1;
-            $_SESSION['log'] .= "$instr/$addr: [S] = [S] + Memory[$addr]\n";
             $_SESSION['changes']['reg_s'] = 1;
             break;
         case 2:
             $_SESSION['mem'][$addr] = $_SESSION['reg_a'];
+            $_SESSION['log'] .=  $_SESSION['instr_ptr']."    $instr/$addr: Memory[$addr] = [A]\n";
             $_SESSION['instr_ptr'] = $_SESSION['instr_ptr'] + 1;
-            $_SESSION['log'] .=  "$instr/$addr: Memory[$addr] = [A]\n";
             $_SESSION['changes']['memory'] = 1;
             break;
         case 3:
             $_SESSION['mem'][$addr] = $_SESSION['reg_s'];
             $_SESSION['reg_a'] = $_SESSION['reg_s'];
+            $_SESSION['log'] .= $_SESSION['instr_ptr']."    $instr/$addr: Memory[$addr] = [S]; [A] = [S];\n";
             $_SESSION['instr_ptr'] = $_SESSION['instr_ptr'] + 1;
-            $_SESSION['log'] .= "$instr/$addr: Memory[$addr] = [S]; [A] = [S];\n";
             $_SESSION['changes']['reg_a'] = 1;
             $_SESSION['changes']['memory'] = 1;
             break;
@@ -107,8 +107,8 @@ function execute($bininstr) {
             $_SESSION['reg_s'] = (int)($tmp - $_SESSION['reg_a'] * pow(2,29));
             $_SESSION['reg_a'] = int32to30($_SESSION['reg_a']);
             $_SESSION['reg_s'] = int32to30($_SESSION['reg_s']);
+            $_SESSION['log'] .= $_SESSION['instr_ptr']."    $instr/$addr: P = [S] X Memory[$addr] + [A]; the value of [A] and [S] are specified with P = 2^29 X [S] + [A];\n";
             $_SESSION['instr_ptr'] = $_SESSION['instr_ptr'] + 1;
-            $_SESSION['log'] .= "$instr/$addr: P = [S] X Memory[$addr] + [A]; the value of [A] and [S] are specified with P = 2^29 X [S] + [A];\n";
             $_SESSION['changes']['reg_a'] = 1;
             $_SESSION['changes']['reg_s'] = 1;
             break;
@@ -116,33 +116,34 @@ function execute($bininstr) {
             $tmp = int30to32($_SESSION['reg_s']) * int30to32($_SESSION['mem'][$addr]);
             if(!is_int($tmp)) {
                 echo "DEBUG error: instr 5 overflow\n";
-                $_SESSION['reg_a'] = (int)($tmp - ((int)($tmp / pow(2, 30)))*pow(2, 30));
+                $_SESSION['reg_a'] = int32to30((int)($tmp - ((int)($tmp / pow(2, 30)))*pow(2, 30)));
             } else {
                 $_SESSION['reg_a'] = int32to30($tmp);
             }
+            $_SESSION['log'] .= $_SESSION['instr_ptr']."    $instr/$addr: [A] = [S] X Memory[$addr];\n";
             $_SESSION['instr_ptr'] = $_SESSION['instr_ptr'] + 1;
-            $_SESSION['log'] .= "$instr/$addr: [A] = [S] X Memory[$addr];\n";
             $_SESSION['changes']['reg_a'] = 1;
             break;
         case 6:
-            $_SESSION['reg_a'] = int32to30($_SESSION['reg_a'] << $addr);
+            $_SESSION['reg_a'] = ($_SESSION['reg_a'] << $addr) & 0x3FFFFFFF;
+            $_SESSION['log'] .= $_SESSION['instr_ptr']."    $instr/$addr: [A] = [A] 2^$addr;\n";
             $_SESSION['instr_ptr'] = $_SESSION['instr_ptr'] + 1;
-            $_SESSION['log'] .= "$instr/$addr: [A] = [A] 2^$addr;\n";
             $_SESSION['changes']['reg_a'] = 1;
             break;
         case 7:
             //jumps to instruction n if (A) >= 0;
             if(int30to32($_SESSION['reg_a']) >= 0) {
+                $_SESSION['log'] .= $_SESSION['instr_ptr']."    $instr/$addr: Jumps to instruction $addr.\n";
                 $_SESSION['instr_ptr'] = $addr;
-                $_SESSION['log'] .= "$instr/$addr: Jumps to instruction $addr.\n";
             } else {
+                $_SESSION['log'] .= $_SESSION['instr_ptr']."    $instr/$addr: Continue with instruction ".($_SESSION['instr_ptr'] +1).".\n";
                 $_SESSION['instr_ptr'] = $_SESSION['instr_ptr'] + 1;
             }
             break;
         case 8:
             $_SESSION['reg_a'] = int32to30(sub(int30to32($_SESSION['reg_a']), int30to32($_SESSION['mem'][$addr])));
+            $_SESSION['log'] .= $_SESSION['instr_ptr']."    $instr/$addr: [A] = [A] - Memory[$addr];\n";
             $_SESSION['instr_ptr'] = $_SESSION['instr_ptr'] + 1;
-            $_SESSION['log'] .= "$instr/$addr: [A] = [A] - Memory[$addr];\n";
             $_SESSION['changes']['reg_a'] = 1;
             break;
         case 9:
@@ -151,59 +152,65 @@ function execute($bininstr) {
             $_SESSION['reg_a'] = int32to30(abs(int30to32($_SESSION['reg_a'])));
             $return_value = instr9($addr);
             $_SESSION['changes']['reg_a'] = 1;
+            if($addr == 49)
+                $_SESSION['log'] .= $_SESSION['instr_ptr']."    $instr/$addr: read a line from the punch tape.\n";
+            else
+                $_SESSION['log'] .= $_SESSION['instr_ptr']."    $instr/$addr: output to the typewriter.\n";
             $_SESSION['instr_ptr'] = $_SESSION['instr_ptr'] + 1;
             break;
         case 10:
             $_SESSION['mem'][$addr] = $_SESSION['reg_a'];
             $_SESSION['reg_a'] = 0;
+            $_SESSION['log'] .= $_SESSION['instr_ptr']."    $instr/$addr: Memory[$addr] = [A]; [A] = 0;\n";
             $_SESSION['instr_ptr'] = $_SESSION['instr_ptr'] + 1;
-            $_SESSION['log'] .= "$instr/$addr: Memory[$addr] = [A]; [A] = 0;\n";
             $_SESSION['changes']['reg_a'] = 1;
             $_SESSION['changes']['memory'] = 1;
             break;
         case 11 :
             $_SESSION['mem'][$addr] = $_SESSION['reg_s'];
             $_SESSION['reg_a'] = 0;
+            $_SESSION['log'] .= $_SESSION['instr_ptr']."    $instr/$addr: Memory[$addr] = [S]; [A] = 0;\n";
             $_SESSION['instr_ptr'] = $_SESSION['instr_ptr'] + 1;
-            $_SESSION['log'] .= "$instr/$addr: Memory[$addr] = [S]; [A] = 0;\n";
             $_SESSION['changes']['reg_a'] = 1;
             $_SESSION['changes']['memory'] = 1;
             break;
         case 12:
-            $tmp = int30to32($_SESSION['reg_a']) << 29 + int30to32($_SESSION['reg_s'] & 0x1FFFFFFF);
+            $tmp = int30to32($_SESSION['reg_a']) * pow(2, 29) + int30to32($_SESSION['reg_s'] & 0x1FFFFFFF);
             $_SESSION['reg_s'] = (int)($tmp / int30to32($_SESSION['mem'][$addr]));
             $_SESSION['reg_a'] = int32to30((int)($tmp - $_SESSION['reg_s'] * int30to32($_SESSION['mem'][$addr])));
             $_SESSION['reg_s'] = int32to30($_SESSION['reg_s']);
+            $_SESSION['log'] .= $_SESSION['instr_ptr']."    $instr/$addr: [A] = (2^29 X [A] + [S]) % Memory[$addr]; [S] = (2^29 X [A] + [S]) / Memory[$addr];\n";
             $_SESSION['instr_ptr'] = $_SESSION['instr_ptr'] + 1;
-            $_SESSION['log'] .= "$instr/$addr: [A] = (2^29 X [A] + [S]) % Memory[$addr]; [S] = (2^29 X [A] + [S]) / Memory[$addr];\n";
             $_SESSION['changes']['reg_a'] = 1;
             $_SESSION['changes']['reg_s'] = 1;
             break;
         case 13:
-            $_SESSION['reg_s'] = int32to30(floor(int30to32($_SESSION['reg_a']) / int30to32($_SESSION['mem'][$addr])));
+            $_SESSION['reg_s'] = int32to30((int)(int30to32($_SESSION['reg_a']) / int30to32($_SESSION['mem'][$addr])));
             $_SESSION['reg_a'] = 0;
+            $_SESSION['log'] .= $_SESSION['instr_ptr']."    $instr/$addr: [S] = [A] / Memory[$addr];\n";
             $_SESSION['instr_ptr'] = $_SESSION['instr_ptr'] + 1;
-            $_SESSION['log'] .= "$instr/$addr: [S] = [A] / Memory[$addr];\n";
             $_SESSION['changes']['reg_a'] = 1; 
             $_SESSION['changes']['reg_s'] = 1;
             break;
         case 14:
             $_SESSION['reg_a'] = int32to30((int)(int30to32($_SESSION['reg_a']) * pow(2, -$addr)));
+            $_SESSION['log'] .= $_SESSION['instr_ptr']."    $instr/$addr: [A] = [A] X 2^-29;\n";
             $_SESSION['instr_ptr'] = $_SESSION['instr_ptr'] + 1;
-            $_SESSION['log'] .= "$instr/$addr: [A] = [A] X 2^-29;\n";
             $_SESSION['changes']['reg_a'] = 1;
             break;
         case 15:
             //jumps to instruction n if (A) < 0.
             if(int30to32($_SESSION['reg_a']) < 0) {
+                $_SESSION['log'] .= $_SESSION['instr_ptr']."    $instr/$addr: Jumps to instruction $addr.\n";
                 $_SESSION['instr_ptr'] = $addr;
-                $_SESSION['log'] .= "$instr/$addr: Jumps to instruction $addr.\n";
             } else {
+                $_SESSION['log'] .= $_SESSION['instr_ptr']."    $instr/$addr: Continue with instruction ".($_SESSION['instr_ptr']+1).".\n";
                 $_SESSION['instr_ptr'] = $_SESSION['instr_ptr'] + 1;
             }
+
             break;
         default :
-            $_SESSION['log'] .= "$instr/$addr: ERROR: Unknown instructions!\n";
+            $_SESSION['log'] .= $_SESSION['instr_ptr']."    $instr/$addr: ERROR: Unknown instructions!\n";
             break;
     }
     return $return_value;
