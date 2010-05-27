@@ -580,6 +580,8 @@ function int32to30($a)
 function init() {
     $_SESSION['start_ptr'] = 0;
     $_SESSION['instr_ptr'] = 0;
+    $_SESSION['reg_a'] = 0;
+    $_SESSION['reg_s'] = 0;
   
     $_SESSION['mem'][0]  = 017;
     $_SESSION['mem'][1]  = 0200050103;
