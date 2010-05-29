@@ -211,6 +211,8 @@ function execute($bininstr) {
             $_SESSION['log'] .= $_SESSION['instr_no'].' | '.$_SESSION['instr_ptr']."    $instr/$addr: ERROR: Unknown instructions!\n";
             break;
     }
+
+    $_SESSION['instr_no']++;
     return $return_value;
 }
 
