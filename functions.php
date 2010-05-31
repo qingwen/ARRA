@@ -395,7 +395,7 @@ function instr9($n) {
         case 49:    //read a line from the punch card
             //list($key, $value) = each($_SESSION['punch']);
             if($_SESSION['punch_no'] < count($_SESSION['punch'])) {
-                $_SESSION['reg_a'] = $_SESSION['punch'][$_SESSION['punch_no'];
+                $_SESSION['reg_a'] = $_SESSION['punch'][$_SESSION['punch_no']];
                 $_SESSION['changes']['reg_a'] = 1;
                 $_SESSION['log'] .= $_SESSION['instr_no'].' | '.$_SESSION['instr_ptr']."    $instr/$addr: read line ".$_SESSION['punch_no']." from the punch tape.\n";
             } else {
