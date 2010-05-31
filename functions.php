@@ -397,10 +397,10 @@ function instr9($n) {
             if($_SESSION['punch_no'] < count($_SESSION['punch'])) {
                 $_SESSION['reg_a'] = $_SESSION['punch'][$_SESSION['punch_no']];
                 $_SESSION['changes']['reg_a'] = 1;
-                $_SESSION['log'] .= $_SESSION['instr_no'].' | '.$_SESSION['instr_ptr']."    $instr/$addr: read line ".$_SESSION['punch_no']." from the punch tape.\n";
+                $_SESSION['log'] .= $_SESSION['instr_no'].' | '.$_SESSION['instr_ptr']."    9/49: read line ".$_SESSION['punch_no']." from the punch tape.\n";
             } else {
                 $return_value = 0;
-                $_SESSION['log'] .= $_SESSION['instr_no'].' | '.$_SESSION['instr_ptr']."    $instr/$addr: supposed to read a line from the punch tape, but reaches the end.\n";
+                $_SESSION['log'] .= $_SESSION['instr_no'].' | '.$_SESSION['instr_ptr']."    9/49: supposed to read a line from the punch tape, but reaches the end.\n";
             }
             $_SESSION['punch_no']++;
             $_SESSION['changes']['output'] = 0;
