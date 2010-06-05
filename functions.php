@@ -33,6 +33,20 @@ function run_n_instrs($n)
         run();
 }
 
+function run_bp($n)
+{
+    do{
+        run();
+    } while($_SESSION['instr_ptr'] != $n && !is_end());
+}
+
+function is_end()
+{
+    if($_SESSION['instr_ptr'] == 0)
+        return true;
+    else
+        return false;
+}
 
 
 /*
@@ -43,7 +57,6 @@ function run_n_instrs($n)
 */
 function run() {
     execute($_SESSION['mem'][$_SESSION['instr_ptr']]);
-
 }
 
 
@@ -54,8 +67,9 @@ function run() {
  * @author: Qingwen Chen
 */
 function run_all() {
-    while($_SESSION['instr_ptr'] != $_SESSION['end_ptr'])
+    do {
         run();
+    }while(!is_end());
 }
 
 
@@ -232,6 +246,16 @@ function instr9($n) {
     $return_value = 1; 
     $_SESSION['changes']['output'] = 1;
     switch($n) {
+        case 0:
+            $_SESSION['output'] = $_SESSION['output'].$_SESSION['reg_a'];
+            break;
+        case 1:
+            $i = 10000000;
+            while($i != 0 && floor($_SESSION['reg_a']/$i) != 0){
+                $prefix .= '0';
+                $i = $i/10;
+            }
+            $_SESSION['output'] = $_SESSION['output'].$prefix.$_SESSION['reg_a'];
         case 5:
             $_SESSION['output'] = $_SESSION['output'].'0';
             break;
