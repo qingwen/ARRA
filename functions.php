@@ -107,7 +107,7 @@ function execute($bininstr) {
             $_SESSION['reg_s'] = (int)($tmp - $_SESSION['reg_a'] * pow(2,29));
             $_SESSION['reg_a'] = int32to30($_SESSION['reg_a']);
             $_SESSION['reg_s'] = int32to30($_SESSION['reg_s']);
-            $_SESSION['log'] = $_SESSION['instr_no'].' | '.$_SESSION['instr_ptr']."    $instr/$addr: P = [S] X Memory[$addr] + [A]; the value of [A] and [S] are specified with P = 2^29 X [S] + [A];\n".$_SESSION['log'];
+            $_SESSION['log'] = $_SESSION['instr_no'].' | '.$_SESSION['instr_ptr']."    $instr/$addr: P = [A] X Memory[$addr] + [S]; the value of [A] and [S] are specified with P = 2^29 X [A] + [S];\n".$_SESSION['log'];
             $_SESSION['instr_ptr'] = $_SESSION['instr_ptr'] + 1;
             $_SESSION['changes']['reg_a'] = 1;
             $_SESSION['changes']['reg_s'] = 1;
@@ -603,6 +603,7 @@ function init() {
     $_SESSION['reg_s'] = 0;
     $_SESSION['instr_no'] = 0;
     $_SESSION['punch_no'] = 0;
+    $_SESSION['log'] = "";
   
     $_SESSION['mem'][0]  = 017;
     $_SESSION['mem'][1]  = 0200050103;
