@@ -27,6 +27,14 @@ function input_one() {
 }
 
 
+function run_n_instrs($n) 
+{
+    for($i = 0; $i < $n; $i++)
+        run();
+}
+
+
+
 /*
  * @description: execute one instruction
  * @input: null
@@ -34,11 +42,8 @@ function input_one() {
  * @author: Qingwen Chen
 */
 function run() {
-//    if($_SESSION['instr_ptr'] != $_SESSION['end_ptr']) {
-        execute($_SESSION['mem'][$_SESSION['instr_ptr']]);
-//    } else {
-//	$_SESSION['log'] .= "End of the program!\n";
-//    }
+    execute($_SESSION['mem'][$_SESSION['instr_ptr']]);
+
 }
 
 
