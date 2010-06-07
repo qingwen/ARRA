@@ -30,7 +30,8 @@ function input_one() {
 function run_n_instrs($n) 
 {
     for($i = 0; $i < $n; $i++)
-        run();
+        if (!run())
+            return false;
 }
 
 function run_bp($n)
@@ -42,10 +43,7 @@ function run_bp($n)
 
 function is_end()
 {
-    if($_SESSION['instr_ptr'] == 0)
-        return true;
-    else
-        return false;
+    return !isset($_SESSION['mem'][$_SESSION['instr_ptr']]);
 }
 
 
@@ -56,7 +54,11 @@ function is_end()
  * @author: Qingwen Chen
 */
 function run() {
-    execute($_SESSION['mem'][$_SESSION['instr_ptr']]);
+    if(!is_end()){
+        execute($_SESSION['mem'][$_SESSION['instr_ptr']]);
+        return true;
+    } else 
+        return false;
 }
 
 
@@ -236,6 +238,26 @@ function execute($bininstr) {
 }
 
 
+
+function int2float($n)
+{
+    for($i = 0; $i < 30; $i++)
+        $d[$i] = ($n >> (29 - $i)) & 0x1;
+
+    for($i = 29; $i > 0; $i--){
+        $result += ($d[$i] - $d[0]) * pow(2, -$i);
+    }
+
+    return $result;
+}
+
+
+function formatoutput($reg_a, $bef, $aft)
+{
+    $str = "%".$bef.".".$aft."f";
+    return sprintf($str, $reg_a * pow(10, $bef));
+}
+
 /*
  * @description: Execute instruction 9.
  * @input: n
@@ -245,6 +267,7 @@ function execute($bininstr) {
 function instr9($n) {
     $return_value = 1; 
     $_SESSION['changes']['output'] = 1;
+    $reg_a = int2float($_SESSION['reg_a']);
     switch($n) {
         case 0:
             $_SESSION['output'] = $_SESSION['output'].$_SESSION['reg_a'];
@@ -307,117 +330,117 @@ function instr9($n) {
 
         /*print the value in register A*/
         case 2:
-            $_SESSION['output'] = $_SESSION['output'].sprintf("%0.8f", $_SESSION['reg_a']);
+            $_SESSION['output'] = $_SESSION['output'].sprintf(".%8d", (int)($reg_a * 100000000));
             break;
         case 4:
-            $_SESSION['output'] = $_SESSION['output'].sprintf("%0.7f", $_SESSION['reg_a']);
+            $_SESSION['output'] = $_SESSION['output'].sprintf("%0.7f", (int) ($reg_a * 10000000));
             break;
         case 7:
-            $_SESSION['output'] = $_SESSION['output'].sprintf("%0.6f", $_SESSION['reg_a']);
+            $_SESSION['output'] = $_SESSION['output'].sprintf("%0.6f", (int)($reg_a * 1000000));
             break;
         case 8:
-            $_SESSION['output'] = $_SESSION['output'].sprintf("%0.5f", $_SESSION['reg_a']);
+            $_SESSION['output'] = $_SESSION['output'].sprintf("%0.5f", (int)($reg_a * 100000));
             break;
         case 9:
-            $_SESSION['output'] = $_SESSION['output'].sprintf("%0.4f", $_SESSION['reg_a']);
+            $_SESSION['output'] = $_SESSION['output'].sprintf("%0.4f", (int)($reg_a * 10000));
             break;
         case 11:
-            $_SESSION['output'] = $_SESSION['output'].sprintf("%0.3f", $_SESSION['reg_a']);
+            $_SESSION['output'] = $_SESSION['output'].sprintf("%0.3f", (int)($reg_a*1000));
             break;
         case 12:
-            $_SESSION['output'] = $_SESSION['output'].sprintf("%0.2f", $_SESSION['reg_a']);
+            $_SESSION['output'] = $_SESSION['output'].sprintf("%0.2f", (int)($reg_a*100));
             break;
 
         case 13:
-            $_SESSION['output'] = $_SESSION['output'].sprintf("%1.7f", $_SESSION['reg_a']);
+            $_SESSION['output'] = $_SESSION['output'].formatoutput($reg_a, 1, 7);
             break;
         case 17:
-            $_SESSION['output'] = $_SESSION['output'].sprintf("%1.6f", $_SESSION['reg_a']);
+            $_SESSION['output'] = $_SESSION['output'].formatoutput($reg_a, 1, 6);
             break;
         case 18:
-            $_SESSION['output'] = $_SESSION['output'].sprintf("%1.5f", $_SESSION['reg_a']);
+            $_SESSION['output'] = $_SESSION['output'].formatoutput($reg_a, 1, 5);
             break;
         case 19:
-            $_SESSION['output'] = $_SESSION['output'].sprintf("%1.4f", $_SESSION['reg_a']);
+            $_SESSION['output'] = $_SESSION['output'].formatoutput($reg_a, 1, 4);
             break;
         case 20:
-            $_SESSION['output'] = $_SESSION['output'].sprintf("%1.3f", $_SESSION['reg_a']);
+            $_SESSION['output'] = $_SESSION['output'].formatoutput($reg_a, 1, 3);
             break;
         case 21:
-            $_SESSION['output'] = $_SESSION['output'].sprintf("%1.2f", $_SESSION['reg_a']);
+            $_SESSION['output'] = $_SESSION['output'].formatoutput($reg_a, 1, 2);
             break;
         case 22:
-            $_SESSION['output'] = $_SESSION['output'].sprintf("%1.1f", $_SESSION['reg_a']);
+            $_SESSION['output'] = $_SESSION['output'].formatoutput($reg_a, 1, 1);
             break;
 
         case 23:
-            $_SESSION['output'] = $_SESSION['output'].sprintf("%2.6f", $_SESSION['reg_a']);
+            $_SESSION['output'] = $_SESSION['output'].formatoutput($reg_a, 2, 6);
             break;
         case 24:
-            $_SESSION['output'] = $_SESSION['output'].sprintf("%2.5f", $_SESSION['reg_a']);
+            $_SESSION['output'] = $_SESSION['output'].formatoutput($reg_a, 2, 5);
             break;
         case 26:
-            $_SESSION['output'] = $_SESSION['output'].sprintf("%2.4f", $_SESSION['reg_a']);
+            $_SESSION['output'] = $_SESSION['output'].formatoutput($reg_a, 2, 4);
             break;
         case 27:
-            $_SESSION['output'] = $_SESSION['output'].sprintf("%2.3f", $_SESSION['reg_a']);
+            $_SESSION['output'] = $_SESSION['output'].formatoutput($reg_a, 2, 3);
             break;
         case 28:
-            $_SESSION['output'] = $_SESSION['output'].sprintf("%2.2f", $_SESSION['reg_a']);
+            $_SESSION['output'] = $_SESSION['output'].formatoutput($reg_a, 2, 2);
             break;
         case 29:
-            $_SESSION['output'] = $_SESSION['output'].sprintf("%2.1f", $_SESSION['reg_a']);
+            $_SESSION['output'] = $_SESSION['output'].formatoutput($reg_a, 2, 1);
             break;
         case 30:
-            $_SESSION['output'] = $_SESSION['output'].sprintf("%2.0f", $_SESSION['reg_a']);
+            $_SESSION['output'] = $_SESSION['output'].formatoutput($reg_a, 2, 0);
             break;
 
         case 31:
-            $_SESSION['output'] = $_SESSION['output'].sprintf("%3.5f", $_SESSION['reg_a']);
+            $_SESSION['output'] = $_SESSION['output'].formatoutput($reg_a, 3, 5);
             break;
         case 32:
-            $_SESSION['output'] = $_SESSION['output'].sprintf("%3.4f", $_SESSION['reg_a']);
+            $_SESSION['output'] = $_SESSION['output'].formatoutput($reg_a, 3, 4);
             break;
         case 33:
-            $_SESSION['output'] = $_SESSION['output'].sprintf("%3.3f", $_SESSION['reg_a']);
+            $_SESSION['output'] = $_SESSION['output'].formatoutput($reg_a, 3, 3);
             break;
         case 34:
-            $_SESSION['output'] = $_SESSION['output'].sprintf("%3.2f", $_SESSION['reg_a']);
+            $_SESSION['output'] = $_SESSION['output'].formatoutput($reg_a, 3, 2);
             break;
         case 35:
-            $_SESSION['output'] = $_SESSION['output'].sprintf("%3.1f", $_SESSION['reg_a']);
+            $_SESSION['output'] = $_SESSION['output'].formatoutput($reg_a, 3, 1);
             break;
         case 36:
-            $_SESSION['output'] = $_SESSION['output'].sprintf("%3.0f", $_SESSION['reg_a']);
+            $_SESSION['output'] = $_SESSION['output'].formatoutput($reg_a, 3, 0);
             break;
 
         case 37:
-            $_SESSION['output'] = $_SESSION['output'].sprintf("%4.4f", $_SESSION['reg_a']);
+            $_SESSION['output'] = $_SESSION['output'].formatoutput($reg_a, 4, 4);
             break;
         case 38:
-            $_SESSION['output'] = $_SESSION['output'].sprintf("%4.3f", $_SESSION['reg_a']);
+            $_SESSION['output'] = $_SESSION['output'].formatoutput($reg_a, 4, 3);
             break;
         case 39:
-            $_SESSION['output'] = $_SESSION['output'].sprintf("%4.2f", $_SESSION['reg_a']);
+            $_SESSION['output'] = $_SESSION['output'].formatoutput($reg_a, 4, 2);
             break;
         case 40:
-            $_SESSION['output'] = $_SESSION['output'].sprintf("%4.1f", $_SESSION['reg_a']);
+            $_SESSION['output'] = $_SESSION['output'].formatoutput($reg_a, 4, 1);
             break;
         case 41:
-            $_SESSION['output'] = $_SESSION['output'].sprintf("%4.0f", $_SESSION['reg_a']);
+            $_SESSION['output'] = $_SESSION['output'].formatoutput($reg_a, 4, 0);
             break;
 
         case 43:
-            $_SESSION['output'] = $_SESSION['output'].sprintf("%5.3f", $_SESSION['reg_a']);
+            $_SESSION['output'] = $_SESSION['output'].formatoutput($reg_a, 5, 3);
             break;
         case 44:
-            $_SESSION['output'] = $_SESSION['output'].sprintf("%5.2f", $_SESSION['reg_a']);
+            $_SESSION['output'] = $_SESSION['output'].formatoutput($reg_a, 5, 2);
             break;
         case 45:
-            $_SESSION['output'] = $_SESSION['output'].sprintf("%5.1f", $_SESSION['reg_a']);
+            $_SESSION['output'] = $_SESSION['output'].formatoutput($reg_a, 5, 1);
             break;
         case 46:
-            $_SESSION['output'] = $_SESSION['output'].sprintf("%5.0f", $_SESSION['reg_a']);
+            $_SESSION['output'] = $_SESSION['output'].formatoutput($reg_a, 5, 0);
             break;
 
 
@@ -436,20 +459,20 @@ function instr9($n) {
             break;
 
         case 50:
-            $_SESSION['output'] = $_SESSION['output'].sprintf("%6.2f", $_SESSION['reg_a']);
+            $_SESSION['output'] = $_SESSION['output'].formatoutput($reg_a, 6, 2);
             break;
         case 51:
-            $_SESSION['output'] = $_SESSION['output'].sprintf("%6.1f", $_SESSION['reg_a']);
+            $_SESSION['output'] = $_SESSION['output'].formatoutput($reg_a, 6, 1);
             break;
         case 52:
-            $_SESSION['output'] = $_SESSION['output'].sprintf("%6.0f", $_SESSION['reg_a']);
+            $_SESSION['output'] = $_SESSION['output'].formatoutput($reg_a, 6, 0);
             break;
 
         case 53:
-            $_SESSION['output'] = $_SESSION['output'].sprintf("%7.1f", $_SESSION['reg_a']);
+            $_SESSION['output'] = $_SESSION['output'].formatoutput($reg_a, 7, 1);
             break;
         case 54:
-            $_SESSION['output'] = $_SESSION['output'].sprintf("%7.0f", $_SESSION['reg_a']);
+            $_SESSION['output'] = $_SESSION['output'].formatoutput($reg_a, 7, 0);
             break;
     }
     return $return_value;
